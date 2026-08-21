@@ -7,6 +7,9 @@ function Coiffeuses() {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
 const [saving, setSaving] = useState(false);
+const [coiffeuseModifiee, setCoiffeuseModifiee] = useState(null);
+const [coiffeuseASupprimer, setCoiffeuseASupprimer] = useState(null);
+const [deleting, setDeleting] = useState(false);
 
 const [formData, setFormData] = useState({
   nom: "",
@@ -25,7 +28,124 @@ const handleChange = (e) => {
       [name]: value,
     }));
   };
+
+  const modifierCoiffeuse = async (e) => {
+    e.preventDefault();
   
+    if (!formData.nom.trim() || !formData.prenom.trim()) {
+      alert("Le nom et le prénom sont obligatoires.");
+      return;
+    }
+  
+    try {
+      setSaving(true);
+  
+      const response = await fetch(
+        `http://localhost:5000/api/coiffeuses/${coiffeuseModifiee.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Erreur lors de la modification"
+        );
+      }
+  
+      setCoiffeuses((ancien) =>
+        ancien.map((coiffeuse) =>
+          coiffeuse.id === coiffeuseModifiee.id
+            ? {
+                ...coiffeuse,
+                ...formData,
+              }
+            : coiffeuse
+        )
+      );
+  
+      setFormData({
+        nom: "",
+        prenom: "",
+        telephone: "",
+        email: "",
+        specialite: "",
+        disponibilite: "DISPONIBLE",
+      });
+  
+      setCoiffeuseModifiee(null);
+      setShowModal(false);
+  
+    } catch (error) {
+      console.error("Erreur :", error);
+      alert(error.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const ouvrirModification = (coiffeuse) => {
+    setCoiffeuseModifiee(coiffeuse);
+  
+    setFormData({
+      nom: coiffeuse.nom || "",
+      prenom: coiffeuse.prenom || "",
+      telephone: coiffeuse.telephone || "",
+      email: coiffeuse.email || "",
+      specialite: coiffeuse.specialite || "",
+      disponibilite: coiffeuse.disponibilite || "DISPONIBLE",
+    });
+    
+      
+        setShowModal(true);
+      };
+
+      const supprimerCoiffeuse = async () => {
+        if (!coiffeuseASupprimer) {
+          return;
+        }
+      
+        try {
+          setDeleting(true);
+      
+          const response = await fetch(
+            `http://localhost:5000/api/coiffeuses/${coiffeuseASupprimer.id}`,
+            {
+              method: "DELETE",
+            }
+          );
+      
+          const data = await response.json();
+      
+          if (!response.ok) {
+            throw new Error(
+              data.message || "Erreur lors de la suppression"
+            );
+          }
+      
+          setCoiffeuses((ancien) =>
+            ancien.filter(
+              (coiffeuse) =>
+                coiffeuse.id !== coiffeuseASupprimer.id
+            )
+          );
+      
+          setCoiffeuseASupprimer(null);
+      
+        } catch (error) {
+          console.error("Erreur :", error);
+          alert(error.message);
+        } finally {
+          setDeleting(false);
+        }
+      };
+
 const ajouterCoiffeuse = async (e) => {
     e.preventDefault();
   
@@ -298,19 +418,21 @@ const ajouterCoiffeuse = async (e) => {
 
                         <div className="coiffeuse-actions">
 
-                          <button
-                            className="action-button edit"
-                            title="Modifier"
-                          >
-                            ✏️
-                          </button>
+                        <button
+  className="action-button edit"
+  title="Modifier"
+  onClick={() => ouvrirModification(coiffeuse)}
+>
+  ✏️
+</button>
 
-                          <button
-                            className="action-button delete"
-                            title="Supprimer"
-                          >
-                            🗑️
-                          </button>
+<button
+  className="action-button delete"
+  title="Supprimer"
+  onClick={() => setCoiffeuseASupprimer(coiffeuse)}
+>
+  🗑️
+</button>
 
                         </div>
 
@@ -338,16 +460,26 @@ const ajouterCoiffeuse = async (e) => {
       <div className="modal-header">
 
         <div>
-          <h3>Ajouter une coiffeuse</h3>
-          <p>
-            Ajoutez une nouvelle coiffeuse au salon.
-          </p>
+        <h3>
+  {coiffeuseModifiee
+    ? "Modifier une coiffeuse"
+    : "Ajouter une coiffeuse"}
+</h3>
+
+<p>
+  {coiffeuseModifiee
+    ? "Modifiez les informations de cette coiffeuse."
+    : "Ajoutez une nouvelle coiffeuse au salon."}
+</p>
         </div>
 
         <button
           type="button"
           className="modal-close"
-          onClick={() => setShowModal(false)}
+          onClick={() => {
+            setShowModal(false);
+            setCoiffeuseModifiee(null);
+          }}
         >
           ×
         </button>
@@ -355,9 +487,13 @@ const ajouterCoiffeuse = async (e) => {
       </div>
 
       <form
-        className="coiffeuse-form"
-        onSubmit={ajouterCoiffeuse}
-      >
+  className="coiffeuse-form"
+  onSubmit={
+    coiffeuseModifiee
+      ? modifierCoiffeuse
+      : ajouterCoiffeuse
+  }
+>
 
         <div className="form-row">
 
@@ -450,7 +586,10 @@ const ajouterCoiffeuse = async (e) => {
           <button
             type="button"
             className="cancel-button"
-            onClick={() => setShowModal(false)}
+            onClick={() => {
+                setShowModal(false);
+                setCoiffeuseModifiee(null);
+              }}
           >
             Annuler
           </button>
@@ -460,14 +599,73 @@ const ajouterCoiffeuse = async (e) => {
             className="submit-button"
             disabled={saving}
           >
-            {saving
-              ? "Ajout en cours..."
-              : "Ajouter la coiffeuse"}
+           {saving
+  ? "Enregistrement..."
+  : coiffeuseModifiee
+    ? "Enregistrer les modifications"
+    : "Ajouter la coiffeuse"}
           </button>
 
         </div>
 
       </form>
+
+    </div>
+
+  </div>
+)}
+
+{coiffeuseASupprimer && (
+  <div className="modal-overlay">
+
+    <div className="delete-modal">
+
+      <div className="delete-icon">
+        🗑️
+      </div>
+
+      <h3>
+        Supprimer la coiffeuse ?
+      </h3>
+
+      <p>
+        Êtes-vous sûr de vouloir supprimer{" "}
+        <strong>
+          {coiffeuseASupprimer.prenom}{" "}
+          {coiffeuseASupprimer.nom}
+        </strong>{" "}
+        ?
+      </p>
+
+      <span className="delete-warning">
+        Cette action est irréversible.
+      </span>
+
+      <div className="delete-actions">
+
+        <button
+          type="button"
+          className="cancel-button"
+          onClick={() =>
+            setCoiffeuseASupprimer(null)
+          }
+          disabled={deleting}
+        >
+          Annuler
+        </button>
+
+        <button
+          type="button"
+          className="confirm-delete-button"
+          onClick={supprimerCoiffeuse}
+          disabled={deleting}
+        >
+          {deleting
+            ? "Suppression..."
+            : "Supprimer"}
+        </button>
+
+      </div>
 
     </div>
 
