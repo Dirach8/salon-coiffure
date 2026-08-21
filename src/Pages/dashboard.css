@@ -1,0 +1,207 @@
+.dashboard {
+    min-height: 100vh;
+    display: flex;
+    background: #f5f6fa;
+  }
+  
+  /* =========================
+     SIDEBAR
+  ========================= */
+  
+  .sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background: #171717;
+    color: white;
+    padding: 25px 18px;
+    box-sizing: border-box;
+  }
+  
+  .sidebar-logo {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .sidebar-logo h2 {
+    margin: 0;
+    font-size: 22px;
+  }
+  
+  .sidebar-logo p {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #aaa;
+  }
+  
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .sidebar-menu button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: #ccc;
+    padding: 13px 15px;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  .sidebar-menu button:hover {
+    background: #292929;
+    color: white;
+  }
+  
+  .sidebar-menu button.active {
+    background: white;
+    color: #171717;
+  }
+  
+  /* =========================
+     CONTENU
+  ========================= */
+  
+  .dashboard-main {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  /* =========================
+     HEADER
+  ========================= */
+  
+  .dashboard-header {
+    height: 75px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 35px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .dashboard-header h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #222;
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #171717;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  
+  .user-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    color: #222;
+  }
+  
+  .user-role {
+    font-size: 12px;
+    color: #888;
+  }
+  
+  /* =========================
+     CONTENU PRINCIPAL
+  ========================= */
+  
+  .dashboard-content {
+    padding: 35px;
+  }
+  
+  .welcome-section {
+    margin-bottom: 30px;
+  }
+  
+  .welcome-section h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    color: #222;
+  }
+  
+  .welcome-section p {
+    margin: 0;
+    color: #777;
+  }
+  
+  /* =========================
+     CARTES STATISTIQUES
+  ========================= */
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  
+  .stat-card {
+    background: white;
+    padding: 22px;
+    border-radius: 14px;
+    border: 1px solid #eee;
+  }
+  
+  .stat-card h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: #777;
+    font-weight: 500;
+  }
+  
+  .stat-card .stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #222;
+  }
+  
+  /* =========================
+     RESPONSIVE
+  ========================= */
+  
+  @media (max-width: 1000px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 700px) {
+    .sidebar {
+      width: 200px;
+    }
+  
+    .dashboard-header {
+      padding: 0 20px;
+    }
+  
+    .dashboard-content {
+      padding: 20px;
+    }
+  
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }

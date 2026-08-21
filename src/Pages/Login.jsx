@@ -1,17 +1,18 @@
 import { useState } from "react";
 import "./Login.css";
 
-function Login() {
+function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
-    setSuccess("");
+
 
     // Vérification de l'email
     if (email.trim() === "") {
@@ -35,8 +36,40 @@ function Login() {
       return;
     }
 
-    // Simulation d'une connexion réussie
-    setSuccess("Connexion réussie !");
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "http://localhost:5000/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            mot_de_passe: password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Erreur lors de la connexion.");
+        return;
+      }
+
+      onLogin(data.utilisateur);
+
+    } catch (error) {
+      console.error("Erreur :", error);
+      setError(
+        "Impossible de contacter le serveur. Vérifiez que le backend fonctionne."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,6 +92,7 @@ function Login() {
               placeholder="Entrez votre adresse e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
           </div>
 
@@ -71,6 +105,7 @@ function Login() {
               placeholder="Entrez votre mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
           </div>
 
@@ -80,18 +115,18 @@ function Login() {
             </p>
           )}
 
-          {success && (
-            <p className="success-message">
-              {success}
-            </p>
-          )}
+        
 
           <div className="forgot-password">
             <a href="#">Mot de passe oublié ?</a>
           </div>
 
-          <button type="submit" className="login-button">
-            Se connecter
+          <button
+            type="submit"
+            className="login-button"
+            disabled={loading}
+          >
+            {loading ? "Connexion..." : "Se connecter"}
           </button>
 
         </form>
