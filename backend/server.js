@@ -3,6 +3,7 @@ import connection from "./config/database.js";
 import authRoutes from "./routes/auth.js";
 import cors from "cors";
 import clientRoutes from "./routes/clients.js";
+import coiffeuseRoutes from "./routes/coiffeuses.js";
 
 const app = express();
 app.use(cors());
@@ -10,9 +11,9 @@ app.use(cors());
 const PORT = 5000;
 
 app.use(express.json());
-app.use("/api/auth", authRoutes
-);
+app.use("/api/auth", authRoutes);
 app.use("/api/clients", clientRoutes);
+app.use("/api/coiffeuses", coiffeuseRoutes);
 
 app.get("/", (req, res) => {
   res.json({

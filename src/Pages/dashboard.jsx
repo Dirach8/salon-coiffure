@@ -1,9 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Clients from "./clients";
 import "./Dashboard.css";
+import Coiffeuses from "./coiffeuses";
 
 function Dashboard({ utilisateur }) {
   const [page, setPage] = useState("dashboard");
+  const [nombreClients, setNombreClients] = useState(0);
+const [nombreCoiffeuses, setNombreCoiffeuses] = useState(0);
+
+useEffect(() => {
+  const chargerStatistiques = async () => {
+    try {
+      const [clientsResponse, coiffeusesResponse] =
+        await Promise.all([
+          fetch("http://localhost:5000/api/clients"),
+          fetch("http://localhost:5000/api/coiffeuses"),
+        ]);
+
+      const clientsData = await clientsResponse.json();
+      const coiffeusesData = await coiffeusesResponse.json();
+
+      setNombreClients(clientsData.clients.length);
+      setNombreCoiffeuses(coiffeusesData.coiffeuses.length);
+
+    } catch (error) {
+      console.error(
+        "Erreur lors du chargement des statistiques :",
+        error
+      );
+    }
+  };
+
+  chargerStatistiques();
+}, []);
 
   return (
     <div className="dashboard">
@@ -33,9 +62,9 @@ function Dashboard({ utilisateur }) {
             👥 Clients
           </button>
 
-          <button>
-            💇‍♀️ Coiffeuses
-          </button>
+          <button onClick={() => setPage("coiffeuses")}>
+  💇‍♀️ Coiffeuses
+</button>
 
           <button>
             ✂️ Prestations
@@ -119,12 +148,16 @@ function Dashboard({ utilisateur }) {
 
                 <div className="stat-card">
                   <h3>Clients</h3>
-                  <div className="stat-number">0</div>
+                  <div className="stat-number">
+  {nombreClients}
+</div>
                 </div>
 
                 <div className="stat-card">
                   <h3>Coiffeuses</h3>
-                  <div className="stat-number">0</div>
+                  <div className="stat-number">
+  {nombreCoiffeuses}
+</div>
                 </div>
 
                 <div className="stat-card">
@@ -145,6 +178,7 @@ function Dashboard({ utilisateur }) {
           {/* CLIENTS */}
 
           {page === "clients" && <Clients />}
+          {page === "coiffeuses" && <Coiffeuses />}
 
         </section>
 
